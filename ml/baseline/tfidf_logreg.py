@@ -1,7 +1,3 @@
-"""
-tfidf_logreg.py — TF-IDF + Logistic Regression baseline for GoEmotions.
-Trains a multinomial LR on TF-IDF features and saves metrics to results/.
-"""
 
 from __future__ import annotations
 
@@ -32,9 +28,6 @@ def train_baseline(dataset, results_dir: Path | None = None) -> dict:
     results_dir = results_dir or (PROJECT_ROOT / "results")
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    # ------------------------------------------------------------------
-    # Vectorise
-    # ------------------------------------------------------------------
     print("\n[baseline] Fitting TF-IDF vectorizer …")
     vectorizer = TfidfVectorizer(
         max_features=50_000,
@@ -53,9 +46,6 @@ def train_baseline(dataset, results_dir: Path | None = None) -> dict:
     print(f"[baseline] TF-IDF matrix — train: {X_train.shape}, "
           f"val: {X_val.shape}, test: {X_test.shape}")
 
-    # ------------------------------------------------------------------
-    # Train
-    # ------------------------------------------------------------------
     print("[baseline] Training Logistic Regression …")
     t0 = time.perf_counter()
     clf = LogisticRegression(
@@ -70,9 +60,6 @@ def train_baseline(dataset, results_dir: Path | None = None) -> dict:
     train_time = time.perf_counter() - t0
     print(f"[baseline] Training completed in {train_time:.1f}s")
 
-    # ------------------------------------------------------------------
-    # Evaluate
-    # ------------------------------------------------------------------
     y_pred_val = clf.predict(X_val)
     y_pred_test = clf.predict(X_test)
 
@@ -98,9 +85,6 @@ def train_baseline(dataset, results_dir: Path | None = None) -> dict:
         output_dict=True,
     )
 
-    # ------------------------------------------------------------------
-    # Save
-    # ------------------------------------------------------------------
     metrics = {
         "model": "TF-IDF + LogisticRegression",
         "tfidf_max_features": 50_000,
@@ -129,10 +113,6 @@ def train_baseline(dataset, results_dir: Path | None = None) -> dict:
 
     return metrics
 
-
-# ---------------------------------------------------------------------------
-# CLI entry-point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     from data.load_data import main as load_data_main
