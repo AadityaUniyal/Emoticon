@@ -1,8 +1,3 @@
-"""
-load_data.py — Download GoEmotions from HuggingFace, convert multi-label
-rows to single dominant label, print class distribution, and persist
-label mappings (label2id.json, id2label.json) to the data/ directory.
-"""
 
 from __future__ import annotations
 
@@ -14,9 +9,6 @@ from pathlib import Path
 import numpy as np
 from datasets import DatasetDict, load_dataset
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 EMOTION_LABELS: list[str] = [
     "admiration", "amusement", "anger", "annoyance", "approval",
@@ -97,10 +89,6 @@ def compute_class_weights(dataset: DatasetDict, split: str = "train") -> np.ndar
     weights = counts.sum() / (len(EMOTION_LABELS) * counts)
     return weights.astype(np.float32)
 
-
-# ---------------------------------------------------------------------------
-# CLI entry-point
-# ---------------------------------------------------------------------------
 
 def main(seed: int = 42) -> DatasetDict:
     """Load data, print stats, save mappings, and return the dataset."""
