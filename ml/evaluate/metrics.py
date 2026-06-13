@@ -1,9 +1,4 @@
-"""
-metrics.py — Post-training evaluation: loads the best DistilBERT checkpoint,
-evaluates on the test set, generates confusion matrix heatmap, training
-curves plot, and a baseline-vs-model comparison table.  All artefacts are
-saved to results/.
-"""
+
 
 from __future__ import annotations
 
@@ -45,10 +40,6 @@ from models.distilbert_clf import (
 
 RESULTS_DIR = PROJECT_ROOT / "results"
 
-
-# ---------------------------------------------------------------------------
-# Evaluation helpers
-# ---------------------------------------------------------------------------
 
 def load_best_model():
     """Load the best saved DistilBERT checkpoint and tokenizer."""
@@ -116,10 +107,6 @@ def evaluate_on_test(
 
     return metrics, preds, labels
 
-
-# ---------------------------------------------------------------------------
-# Visualisation
-# ---------------------------------------------------------------------------
 
 def plot_confusion_matrix(labels: np.ndarray, preds: np.ndarray, out_path: Path) -> None:
     """Generate and save a confusion matrix heatmap as PNG."""
@@ -264,9 +251,6 @@ def generate_comparison_table(distilbert_metrics: dict, results_dir: Path) -> No
     print("\n" + table_text)
 
 
-# ---------------------------------------------------------------------------
-# Main orchestrator
-# ---------------------------------------------------------------------------
 
 def run_evaluation(dataset: DatasetDict) -> dict:
     """Full evaluation pipeline: metrics, confusion matrix, curves, comparison."""
@@ -293,9 +277,6 @@ def run_evaluation(dataset: DatasetDict) -> dict:
     return metrics
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     from data.load_data import main as load_data_main
