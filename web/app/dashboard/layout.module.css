@@ -1,0 +1,25 @@
+.layoutContainer {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.mainContent {
+  flex: 1;
+  margin-left: 260px;
+  padding: 40px;
+  position: relative;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1024px) {
+  .mainContent {
+    margin-left: 0;
+    padding: 24px;
+    padding-top: 80px; /* Space for a mobile menu toggle if needed, or sidebar overlay */
+  }
+}

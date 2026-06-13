@@ -1,0 +1,531 @@
+
+=======================================================================
+  PROJECT A — EMOTION-AWARE SENTIMENT CLASSIFIER
+  MASTER PROMPT FOR AI-ASSISTED DEVELOPMENT
+  Author: Aaditya Uniyal
+  Target: Amazon ML School Resume Project
+=======================================================================
+
+You are an expert ML engineer and technical architect.
+Your job is to help me build "EmoSense" — an emotion-aware text
+classification system fine-tuned on the GoEmotions dataset.
+
+This is a resume-quality ML project that must demonstrate:
+  - Real model training from scratch (not API calls)
+  - NLP depth (tokenization, fine-tuning, evaluation)
+  - Production awareness (FastAPI serving, model card)
+  - Rigorous benchmarking (baseline vs fine-tuned comparison)
+
+Generate ALL of the following documents one by one, in full.
+Do not summarize or truncate any section.
+
+=======================================================================
+  DOCUMENT 1 — prd.md  (Product Requirements Document)
+=======================================================================
+
+Write a complete PRD for EmoSense with the following sections:
+
+1. Overview
+   - Product name: EmoSense
+   - One-line description
+   - Problem statement: why emotion classification beyond
+     positive/negative sentiment matters (customer feedback,
+     mental health apps, content moderation)
+
+2. Goals & Non-Goals
+   - Goals: classify text into 27 emotions from GoEmotions dataset,
+     serve predictions via API, beat TF-IDF baseline by >20% macro F1
+   - Non-goals: real-time streaming, mobile deployment, multi-language
+
+3. Target Users
+   - ML hiring reviewers / Amazon ML School evaluators
+   - Developers who want to integrate emotion detection into apps
+
+4. Success Metrics
+   - Primary: Macro F1 score on GoEmotions test set
+   - Secondary: inference latency <200ms per request
+   - Tertiary: clean GitHub repo with model card and loss curves
+
+5. Dataset
+   - GoEmotions by Google (58K Reddit comments, 27 emotion labels)
+   - HuggingFace dataset ID: google-research-datasets/go_emotions
+   - Class imbalance details and handling strategy
+
+6. Constraints
+   - Must run on free-tier GPU (Colab T4 or Kaggle P100)
+   - Max fine-tuning time: 5 hours
+   - Must be reproducible with a fixed random seed
+
+7. Timeline
+   - Hour 0–2: EDA and baseline
+   - Hour 2–4: Tokenization and data pipeline
+   - Hour 4–9: Fine-tuning DistilBERT
+   - Hour 9–11: Evaluation and plots
+   - Hour 11–12: FastAPI endpoint and README
+
+=======================================================================
+  DOCUMENT 2 — techspec.md  (Technical Specification)
+=======================================================================
+
+Write a complete technical specification covering:
+
+1. System Architecture
+   - Data layer: HuggingFace datasets loader
+   - Model layer: distilbert-base-uncased with classification head
+   - Training layer: HuggingFace Trainer API
+   - Serving layer: FastAPI + uvicorn
+   - Experiment tracking: W&B (optional) or local matplotlib logs
+
+2. Model Architecture
+   - Base: distilbert-base-uncased (66M parameters)
+   - Head: Linear(768, 27) with sigmoid activation
+     (multi-label capable, but treat as single-label for simplicity)
+   - Loss function: CrossEntropyLoss with class weights
+     for imbalance handling
+   - Optimizer: AdamW, lr=2e-5, weight_decay=0.01
+   - Scheduler: linear warmup over 10% of steps
+
+3. Training Configuration
+   - Epochs: 4
+   - Batch size: 32 (train), 64 (eval)
+   - Max token length: 128
+   - Early stopping: patience=2 on val macro F1
+   - Mixed precision: fp16=True (GPU only)
+   - Random seed: 42
+
+4. Baseline Model
+   - TF-IDF vectorizer (max_features=50000, ngram_range=(1,2))
+   - Logistic Regression (C=1.0, max_iter=1000, multi_class='multinomial')
+   - Fit on train split, evaluate on test split
+
+5. Evaluation Protocol
+   - Metrics: macro F1, weighted F1, per-class F1, accuracy
+   - Confusion matrix (27x27)
+   - Training loss curve per epoch
+   - Validation F1 curve per epoch
+   - Comparison table: Baseline vs DistilBERT
+
+6. Inference Pipeline
+   - Input: raw text string
+   - Tokenize with DistilBertTokenizer (same max_length=128)
+   - Forward pass, softmax, argmax for top prediction
+   - Return: predicted emotion label + confidence score
+
+7. File Structure
+   emosense/
+   ├── data/
+   │   └── load_data.py         — HuggingFace dataset loader
+   ├── models/
+   │   └── distilbert_clf.py    — model class + training config
+   ├── baseline/
+   │   └── tfidf_logreg.py      — TF-IDF + LR baseline
+   ├── evaluate/
+   │   └── metrics.py           — F1, confusion matrix, plots
+   ├── serve/
+   │   └── api.py               — FastAPI app
+   ├── notebooks/
+   │   └── EDA.ipynb            — exploratory analysis
+   ├── train.py                 — main training script
+   ├── predict.py               — inference script
+   ├── requirements.txt
+   ├── model_card.md
+   └── README.md
+
+8. Dependencies
+   transformers>=4.38.0
+   datasets>=2.18.0
+   torch>=2.0.0
+   scikit-learn>=1.3.0
+   fastapi>=0.110.0
+   uvicorn>=0.27.0
+   pandas>=2.0.0
+   numpy>=1.24.0
+   matplotlib>=3.7.0
+   seaborn>=0.12.0
+   optuna>=3.5.0 (optional for LR tuning)
+
+=======================================================================
+  DOCUMENT 3 — appflow.md  (Application Flow)
+=======================================================================
+
+Write a complete application flow document covering:
+
+1. Training Flow (step-by-step)
+   Step 1: Run load_data.py
+     → Downloads GoEmotions from HuggingFace
+     → Splits into train (80%) / val (10%) / test (10%)
+     → Saves label2id and id2label mappings
+   Step 2: Run baseline/tfidf_logreg.py
+     → Fits TF-IDF on train text
+     → Trains Logistic Regression
+     → Saves baseline metrics to results/baseline_metrics.json
+   Step 3: Run train.py
+     → Tokenizes dataset with DistilBertTokenizer
+     → Initializes DistilBertForSequenceClassification
+     → Trains with HuggingFace Trainer
+     → Logs loss + val F1 per epoch
+     → Saves best checkpoint to models/checkpoints/best/
+   Step 4: Run evaluate/metrics.py
+     → Loads best checkpoint
+     → Evaluates on test set
+     → Generates confusion matrix PNG
+     → Generates training curve PNG
+     → Generates comparison table (baseline vs fine-tuned)
+     → Saves all to results/
+
+2. Inference Flow (API)
+   User sends POST /predict with {"text": "I feel amazing today"}
+     → api.py receives request
+     → Tokenizes input (max 128 tokens)
+     → Loads model from models/checkpoints/best/
+     → Forward pass, softmax
+     → Returns {"emotion": "joy", "confidence": 0.91,
+                 "top3": [{"joy": 0.91}, {"excitement": 0.06},
+                          {"amusement": 0.02}]}
+
+3. Error Handling
+   - Empty input → 422 Unprocessable Entity
+   - Text >512 tokens → truncate silently, log warning
+   - Model not loaded → 503 Service Unavailable with message
+
+4. CLI Flow
+   python train.py --epochs 4 --batch_size 32 --seed 42
+   python predict.py --text "I am so frustrated right now"
+   uvicorn serve.api:app --host 0.0.0.0 --port 8000
+
+=======================================================================
+  DOCUMENT 4 — design.md  (ML Design Decisions)
+=======================================================================
+
+Write a complete ML design decisions document covering:
+
+1. Why DistilBERT over BERT
+   - 40% smaller, 60% faster, retains 97% of BERT performance
+   - Fits within free-tier GPU memory (< 6GB VRAM)
+   - Still captures contextual embeddings — far better than TF-IDF
+   - Justify with benchmark references
+
+2. Why GoEmotions dataset
+   - 27 fine-grained emotions vs coarse pos/neg sentiment
+   - Google-curated, Reddit domain, real informal text
+   - Well-studied benchmark — easy to compare your results
+
+3. Why CrossEntropyLoss with class weights
+   - GoEmotions is heavily imbalanced (neutral >> rare emotions)
+   - Class weights = total_samples / (num_classes * class_count)
+   - Prevents model from always predicting neutral
+
+4. Why macro F1 as primary metric
+   - Macro F1 treats all 27 classes equally regardless of support
+   - Forces the model to learn rare emotions, not just dominant ones
+   - Standard metric for imbalanced multi-class classification
+
+5. Why TF-IDF + LR as baseline (not zero-shot GPT)
+   - Reproducible and deterministic
+   - Widely understood by ML reviewers
+   - Shows clear improvement curve: rule-based → statistical → neural
+   - GPT baseline would obscure the fine-tuning contribution
+
+6. Hyperparameter choices and justification
+   - lr=2e-5: standard for BERT-family fine-tuning (Devlin et al.)
+   - max_length=128: Reddit comments are short; >128 wastes compute
+   - 4 epochs: diminishing returns beyond 3–4 for classification
+   - Warmup 10%: prevents large gradient updates at start
+
+7. Known limitations
+   - Single-label prediction (GoEmotions is multi-label capable)
+   - English only
+   - Reddit domain bias (may underperform on formal text)
+
+=======================================================================
+  DOCUMENT 5 — schema.md  (Data Schema)
+=======================================================================
+
+Write a complete data schema document covering:
+
+1. Raw Dataset Schema (GoEmotions)
+   Column         Type      Description
+   ──────────────────────────────────────────────────────────
+   text           string    Reddit comment text (1–512 chars)
+   labels         List[int] 0 to N emotion label indices
+   id             string    Unique comment ID
+   author         string    Reddit username (anonymized)
+   subreddit      string    Source subreddit
+   link_id        string    Parent post ID
+   parent_id      string    Parent comment ID
+   created_utc    int       Unix timestamp
+   rater_id       int       Annotator ID
+   example_very.. bool      Flagged as very clear example
+
+2. Processed Dataset Schema (after load_data.py)
+   Column         Type      Description
+   ──────────────────────────────────────────────────────────
+   text           string    Raw comment text
+   label          int       Single dominant label (argmax)
+   label_name     string    Human-readable emotion name
+   split          string    train / val / test
+
+3. Tokenized Dataset Schema (HuggingFace format)
+   Column            Type          Description
+   ──────────────────────────────────────────────────────────
+   input_ids         List[int]     Token IDs (padded to 128)
+   attention_mask    List[int]     1 for real tokens, 0 for pad
+   labels            int           Class index (0–26)
+
+4. Model Output Schema
+   Field          Type      Description
+   ──────────────────────────────────────────────────────────
+   logits         Tensor    Raw scores for 27 classes
+   probabilities  Tensor    Softmax of logits
+   prediction     int       Argmax of probabilities
+   label_name     string    Mapped emotion string
+   confidence     float     Max probability value
+
+5. API Request / Response Schema
+   Request:
+     POST /predict
+     Body: { "text": string }
+
+   Response 200:
+     {
+       "emotion": string,
+       "confidence": float,
+       "top3": [{ "label": string, "score": float }],
+       "latency_ms": float
+     }
+
+   Response 422:
+     { "detail": "text field is required and cannot be empty" }
+
+6. Metrics Output Schema (results/metrics.json)
+   {
+     "baseline": {
+       "macro_f1": float,
+       "weighted_f1": float,
+       "accuracy": float
+     },
+     "distilbert": {
+       "macro_f1": float,
+       "weighted_f1": float,
+       "accuracy": float,
+       "epoch": int,
+       "best_val_f1": float
+     },
+     "improvement_pct": float
+   }
+
+7. Label Map (all 27 GoEmotions classes)
+   ID   Label           ID   Label           ID   Label
+   0    admiration      9    disapproval     18   nervousness
+   1    amusement       10   disgust         19   optimism
+   2    anger           11   embarrassment   20   pride
+   3    annoyance       12   excitement      21   realization
+   4    approval        13   fear            22   relief
+   5    caring          14   gratitude       23   remorse
+   6    confusion       15   grief           24   sadness
+   7    curiosity       16   joy             25   surprise
+   8    desire          17   love            26   neutral
+
+=======================================================================
+  DOCUMENT 6 — implementation.md  (Implementation Guide)
+=======================================================================
+
+Write a complete step-by-step implementation guide with full code
+snippets for each file. Cover:
+
+1. Environment Setup
+   - pip install command for all dependencies
+   - GPU check snippet (torch.cuda.is_available())
+   - Seed setting function for full reproducibility
+
+2. data/load_data.py  — full working code
+   - Load google-research-datasets/go_emotions from HuggingFace
+   - Convert multi-label to single dominant label
+   - Print class distribution
+   - Save label mappings as JSON
+
+3. baseline/tfidf_logreg.py  — full working code
+   - TF-IDF vectorizer fit + transform
+   - Logistic Regression training
+   - Classification report with per-class F1
+   - Save results to results/baseline_metrics.json
+
+4. models/distilbert_clf.py  — full working code
+   - Tokenizer initialization
+   - tokenize_function for HuggingFace datasets map()
+   - DistilBertForSequenceClassification setup with num_labels=27
+   - TrainingArguments configuration
+   - compute_metrics function returning macro F1
+   - Trainer initialization and train() call
+
+5. evaluate/metrics.py  — full working code
+   - Load best checkpoint
+   - Run predictions on test set
+   - Generate and save confusion matrix (seaborn heatmap)
+   - Generate and save training loss + val F1 curves
+   - Print comparison table: baseline vs DistilBERT
+
+6. serve/api.py  — full working code
+   - FastAPI app initialization
+   - Load model and tokenizer on startup
+   - POST /predict endpoint with Pydantic request model
+   - Inference function with latency tracking
+   - Health check GET /health endpoint
+
+7. train.py  — full working code
+   - argparse for --epochs, --batch_size, --seed, --no-baseline flags
+   - Orchestrates: load → baseline → tokenize → train → evaluate
+
+8. model_card.md  — full template
+   - Model description
+   - Training data
+   - Evaluation results (leave [FILL] placeholders for metrics)
+   - Intended use
+   - Limitations
+   - How to use (code snippet)
+
+=======================================================================
+  DOCUMENT 7 — tracker.md  (Progress Tracker)
+=======================================================================
+
+Write a complete progress tracker document as a checklist covering:
+
+Phase 1 — Setup (Est. 30 min)
+  [ ] Create GitHub repo: emosense
+  [ ] Set up virtual environment
+  [ ] Install all dependencies from requirements.txt
+  [ ] Verify GPU availability (Colab / Kaggle)
+  [ ] Create folder structure as per techspec.md
+  [ ] Set random seed=42 globally
+
+Phase 2 — Data & EDA (Est. 1.5 hrs)
+  [ ] Run load_data.py — download GoEmotions
+  [ ] Print class distribution — identify top 5 and bottom 5 classes
+  [ ] Check average text length
+  [ ] Identify null / empty rows
+  [ ] Plot class distribution bar chart → save to results/eda_class_dist.png
+  [ ] Confirm train/val/test split sizes
+  [ ] Save label2id.json and id2label.json
+
+Phase 3 — Baseline (Est. 1 hr)
+  [ ] Run tfidf_logreg.py
+  [ ] Record baseline macro F1: ______
+  [ ] Record baseline weighted F1: ______
+  [ ] Record baseline accuracy: ______
+  [ ] Save baseline_metrics.json
+
+Phase 4 — Fine-tuning (Est. 4–5 hrs incl. GPU time)
+  [ ] Tokenize dataset with DistilBertTokenizer
+  [ ] Initialize DistilBertForSequenceClassification (num_labels=27)
+  [ ] Configure TrainingArguments
+  [ ] Run Trainer.train()
+  [ ] Monitor: epoch 1 val F1: ______
+  [ ] Monitor: epoch 2 val F1: ______
+  [ ] Monitor: epoch 3 val F1: ______
+  [ ] Monitor: epoch 4 val F1: ______
+  [ ] Best checkpoint saved to models/checkpoints/best/
+
+Phase 5 — Evaluation (Est. 1.5 hrs)
+  [ ] Run metrics.py on test set
+  [ ] Record final test macro F1: ______
+  [ ] Record final test weighted F1: ______
+  [ ] Record improvement over baseline: ______%
+  [ ] Confusion matrix saved: results/confusion_matrix.png
+  [ ] Training curve saved: results/training_curves.png
+  [ ] Comparison table printed and screenshot saved
+
+Phase 6 — Serving (Est. 1 hr)
+  [ ] Run serve/api.py with uvicorn
+  [ ] Test POST /predict with 5 sample texts
+  [ ] Verify response schema matches schema.md
+  [ ] Measure average inference latency (target: <200ms)
+  [ ] Latency result: ______ms
+
+Phase 7 — Documentation (Est. 1 hr)
+  [ ] Fill in all [FILL] placeholders in model_card.md
+  [ ] Update README.md with actual metric numbers
+  [ ] Add results table to README (baseline vs DistilBERT)
+  [ ] Add confusion matrix image to README
+  [ ] Add training curve image to README
+  [ ] Pin repo on GitHub profile
+  [ ] Add repo description and topics on GitHub
+       (topics: nlp, emotion-classification, distilbert,
+        pytorch, transformers, huggingface)
+
+Phase 8 — Resume & Application
+  [ ] Write resume bullet with actual macro F1 number
+  [ ] Verify GitHub repo is public
+  [ ] Link GitHub repo in Amazon ML School application
+
+=======================================================================
+  DOCUMENT 8 — rules.md  (Project Rules & Constraints)
+=======================================================================
+
+Write a complete rules and constraints document covering:
+
+1. Reproducibility Rules
+   - Always set torch.manual_seed(42), np.random.seed(42),
+     random.seed(42), and transformers.set_seed(42) at top of
+     every script
+   - Never use random splits — use fixed stratified splits saved
+     to disk, reload the same splits every run
+   - Pin all dependency versions in requirements.txt
+   - Save training args to training_args.json for auditability
+
+2. Data Integrity Rules
+   - Never use test set during training or hyperparameter selection
+   - Baseline and DistilBERT must be evaluated on the exact same
+     test split
+   - Do not upsample or augment test data — only train data
+   - Log dataset sizes (train/val/test) before every training run
+
+3. Model Honesty Rules
+   - Only report metrics on the held-out test set in the README
+     and model card — not validation set numbers
+   - Never cherry-pick the best epoch on test set —
+     use best val F1 checkpoint evaluated once on test
+   - If macro F1 < 0.45, do not claim "high accuracy" on resume —
+     report the actual number
+
+4. Code Quality Rules
+   - Every function must have a one-line docstring
+   - No hardcoded paths — use pathlib.Path and config dict
+   - All results saved programmatically — no manual copy-paste
+     of metric numbers
+   - requirements.txt must be the only way to install dependencies
+
+5. GitHub Rules
+   - Commit message format: [phase] description
+     e.g. [data] add GoEmotions loader with label mapping
+          [train] add DistilBERT fine-tuning with Trainer API
+          [eval] add confusion matrix and training curves
+          [serve] add FastAPI inference endpoint
+   - Never commit model weights to GitHub (>100MB) —
+     add models/checkpoints/ to .gitignore
+   - Do commit: all .py scripts, notebooks, results PNGs,
+     metrics JSONs, README, model_card.md
+   - README must have: project description, dataset, results table,
+     how to run, sample output
+
+6. Resume Rules
+   - Only add this project to resume after Phase 7 is complete
+   - The macro F1 number in the resume bullet must match
+     results/metrics.json exactly
+   - GitHub link in resume must point to the public repo
+   - Do not list "DistilBERT" in skills — only list frameworks:
+     PyTorch, HuggingFace Transformers
+
+7. Time Management Rules (24-hour constraint)
+   - If fine-tuning exceeds 5 hours, reduce to 2 epochs
+     and document the constraint in model_card.md
+   - Do not start serving (Phase 6) until evaluation (Phase 5)
+     is fully complete
+   - README and model_card.md must be finished before
+     sharing the GitHub link anywhere
+
+=======================================================================
+  END OF MASTER PROMPT
+  Usage: paste this entire file into your AI assistant and ask it
+  to generate each document one at a time.
+  Start with: "Generate prd.md for EmoSense as described above."
+=======================================================================

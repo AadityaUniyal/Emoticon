@@ -1,0 +1,229 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  background: #050508;
+  border-right: 1px solid var(--border-cyber);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  z-index: 100;
+  font-family: var(--font-mono);
+}
+
+.brand {
+  margin-bottom: 32px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  gap: 10px;
+  letter-spacing: -0.5px;
+}
+
+.logoIcon {
+  font-size: 1.4rem;
+}
+
+.logoText {
+  color: var(--text-primary);
+  text-shadow: 0 0 10px rgba(88, 86, 214, 0.3);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+  box-shadow: 0 0 8px var(--accent-emerald-glow);
+  margin-left: auto;
+}
+
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 24px;
+}
+
+/* Custom mini scrollbar for nav */
+.nav::-webkit-scrollbar {
+  width: 4px;
+}
+.nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.navHeader {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  font-weight: 700;
+  padding-left: 8px;
+}
+
+.menuList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.menuItem {
+  display: block;
+}
+
+.menuLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.menuLink:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.active {
+  color: var(--text-primary) !important;
+  background: rgba(88, 86, 214, 0.08) !important;
+  border-color: var(--border-cyber-active) !important;
+  box-shadow: inset 0 0 10px rgba(88, 86, 214, 0.15);
+}
+
+.linkIcon {
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.linkLabel {
+  flex: 1;
+}
+
+.activeIndicator {
+  color: var(--accent-indigo);
+  font-weight: bold;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(-2px); }
+}
+
+.sysStatus {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.statusRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statusValue {
+  font-weight: bold;
+  font-family: var(--font-mono);
+}
+
+.green {
+  color: var(--accent-emerald);
+  text-shadow: 0 0 8px var(--accent-emerald-glow);
+}
+
+.cyan {
+  color: var(--accent-cyan);
+  text-shadow: 0 0 8px var(--accent-cyan-glow);
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px;
+}
+
+.avatarWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.userName {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.userRole {
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.5px;
+}
+
+.backHome {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  width: 100%;
+  text-align: center;
+}
+
+.backHome:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border);
+}
