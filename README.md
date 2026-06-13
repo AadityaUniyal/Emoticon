@@ -14,24 +14,7 @@
 
 ---
 
-## 📺 Dashboard Telemetry Preview
 
-<div align="center">
-  <h3>✨ Space-Black Cyberpunk Landing Page</h3>
-  <img src="web/public/screenshots/landing.png" alt="EmoSense Landing Page" width="90%" style="border-radius: 8px; border: 1px solid #1a2333;" />
-  
-  <br/><br/>
-  
-  <h3>📈 System Telemetry Dashboard</h3>
-  <img src="web/public/screenshots/dashboard.png" alt="EmoSense Dashboard" width="90%" style="border-radius: 8px; border: 1px solid #1a2333;" />
-  
-  <br/><br/>
-
-  <h3>💻 Phosphor Retraining & Model Tuning Lab</h3>
-  <img src="web/public/screenshots/tuning_lab.png" alt="Model Tuning Lab" width="90%" style="border-radius: 8px; border: 1px solid #1a2333;" />
-</div>
-
----
 
 ## 📋 Overview
 
