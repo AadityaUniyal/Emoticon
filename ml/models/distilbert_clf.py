@@ -1,8 +1,4 @@
-"""
-distilbert_clf.py — DistilBERT fine-tuning setup for GoEmotions 27-class
-emotion classification.  Provides tokenizer helpers, model factory,
-training arguments, metrics computation, and a top-level train_model().
-"""
+
 
 from __future__ import annotations
 
@@ -28,9 +24,6 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from data.load_data import EMOTION_LABELS, ID2LABEL, LABEL2ID, compute_class_weights
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 MODEL_NAME = "distilbert-base-uncased"
 MAX_LENGTH = 128
@@ -39,10 +32,6 @@ NUM_LABELS = 27
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
 BEST_MODEL_DIR = OUTPUT_DIR / "best_model"
 
-
-# ---------------------------------------------------------------------------
-# Tokenizer
-# ---------------------------------------------------------------------------
 
 def get_tokenizer():
     """Return the DistilBERT tokenizer."""
@@ -68,10 +57,6 @@ def tokenize_dataset(dataset: DatasetDict, tokenizer) -> DatasetDict:
     )
 
 
-# ---------------------------------------------------------------------------
-# Model
-# ---------------------------------------------------------------------------
-
 def build_model() -> DistilBertForSequenceClassification:
     """Instantiate DistilBertForSequenceClassification with 27 labels."""
     model = DistilBertForSequenceClassification.from_pretrained(
@@ -83,10 +68,6 @@ def build_model() -> DistilBertForSequenceClassification:
     return model
 
 
-# ---------------------------------------------------------------------------
-# Metrics
-# ---------------------------------------------------------------------------
-
 def compute_metrics(eval_pred) -> dict[str, float]:
     """Compute macro F1, weighted F1, and accuracy for Trainer."""
     logits, labels = eval_pred
@@ -96,11 +77,6 @@ def compute_metrics(eval_pred) -> dict[str, float]:
         "weighted_f1": f1_score(labels, preds, average="weighted", zero_division=0),
         "accuracy": accuracy_score(labels, preds),
     }
-
-
-# ---------------------------------------------------------------------------
-# Custom Trainer with class-weighted loss
-# ---------------------------------------------------------------------------
 
 class WeightedTrainer(Trainer):
     """Trainer subclass that applies per-class weights to CrossEntropyLoss."""
@@ -131,9 +107,6 @@ class WeightedTrainer(Trainer):
         return (loss, outputs) if return_outputs else loss
 
 
-# ---------------------------------------------------------------------------
-# Training arguments factory
-# ---------------------------------------------------------------------------
 
 def get_training_args(
     epochs: int = 4,
@@ -169,10 +142,6 @@ def get_training_args(
         report_to="none",
     )
 
-
-# ---------------------------------------------------------------------------
-# Main train function
-# ---------------------------------------------------------------------------
 
 def train_model(
     dataset: DatasetDict,
@@ -215,10 +184,6 @@ def train_model(
 
     return trainer
 
-
-# ---------------------------------------------------------------------------
-# CLI entry-point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     from data.load_data import main as load_data_main
